@@ -1,5 +1,1 @@
-# portswigger-labs
-# portswigger-labs
-# portswigger-labs
-# portswigger-labs
-# portswigger-labs
+These are my notes for the portswigger labs. 
